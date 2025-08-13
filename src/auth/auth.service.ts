@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   ConflictException,
   Injectable,
@@ -20,14 +19,14 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async signup(createUserDto: CreateUserDto): Promise<User> {
-    const { name, email, password, avatarUrl } = createUserDto;
+  async signup(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+    const { name, email, password: pwd, avatarUrl } = createUserDto;
     try {
       const existingUser = await this.userModel.findOne({ email });
       if (existingUser) {
         throw new ConflictException('User already exists');
       }
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(pwd, 10);
 
       const user = new this.userModel({
         name,
@@ -35,7 +34,10 @@ export class AuthService {
         password: hashedPassword,
         avatarUrl,
       });
-      return user.save();
+      user.save();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = user.toObject();
+      return userWithoutPassword as unknown as User;
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException('Email already exists');
@@ -46,7 +48,7 @@ export class AuthService {
   async signIn(body: {
     email: string;
     password: string;
-  }): Promise<{ access_token: string }> {
+  }): Promise<{ access_token: string; user: Omit<User, 'password'> }> {
     const { email, password } = body;
     if (!email || !password) {
       throw new UnauthorizedException('Name and password are required');
@@ -61,7 +63,11 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const payload = { sub: user._id, name: user.name };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: pwd, ...userWithoutPassword } = user.toObject();
+
     return {
+      user: userWithoutPassword as unknown as Omit<User, 'password'>,
       access_token: await this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
         expiresIn: '1h',
