@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Role } from 'src/common/enums/user-role.enum';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
@@ -22,13 +21,7 @@ export class AuthService {
   ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<User> {
-    const {
-      name,
-      email,
-      password,
-      avatarUrl,
-      role = Role.MEMBER,
-    } = createUserDto;
+    const { name, email, password, avatarUrl } = createUserDto;
     try {
       const existingUser = await this.userModel.findOne({ email });
       if (existingUser) {
@@ -41,7 +34,6 @@ export class AuthService {
         email,
         password: hashedPassword,
         avatarUrl,
-        role,
       });
       return user.save();
     } catch (error) {

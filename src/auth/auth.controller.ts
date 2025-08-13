@@ -7,6 +7,8 @@ import { Public } from 'src/common/decorators/public.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @HttpCode(HttpStatus.CREATED)
+  @Public()
   @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto): Promise<any> {
     return await this.authService.signup(createUserDto);

@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { CommunityModule } from './community/community.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthGuard } from './auth/auth.guard';
     }),
     UserModule,
     AuthModule,
+    CommunityModule,
   ],
   controllers: [AppController],
   providers: [
