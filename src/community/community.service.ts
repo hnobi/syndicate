@@ -8,6 +8,7 @@ import {
   CommunityMembersDocument,
 } from './schemas/community-members.schema';
 import { MemberRole } from 'src/common/enums/community-user.enum';
+import { Visibility } from 'src/common/enums/visibility-enum';
 
 @Injectable()
 export class CommunityService {
@@ -58,6 +59,7 @@ export class CommunityService {
       throw new Error(`Failed to create community: ${error.message}`);
     }
   }
+
   private async createCommunityMember(
     userId: string,
     communityId: string,
@@ -70,5 +72,37 @@ export class CommunityService {
       role,
       joinedAt,
     });
+  }
+  async getCommunities(
+    visibility: Visibility,
+    page = 1,
+    limit = 20,
+  ): Promise<any> {
+    try {
+      const skip = (page - 1) * limit;
+
+      const query = { visibility };
+
+      const communities = await this.communityModel
+        .find(query)
+        .populate('ownerId', 'name avatarUrl')
+        .sort({ memberCount: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.communityModel.countDocuments(query);
+
+      return {
+        communities,
+        pagination: {
+          page,
+          totalPages: Math.ceil(total / limit),
+          hasNext: skip + communities.length < total,
+          limit,
+        },
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch communities: ${error.message}`);
+    }
   }
 }
