@@ -148,5 +148,4 @@ export class CommunityService {
 
     return newCommunity;
   }
-
 }

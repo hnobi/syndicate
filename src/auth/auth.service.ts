@@ -10,6 +10,7 @@ import { User, UserDocument } from 'src/user/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
@@ -45,6 +47,7 @@ export class AuthService {
       throw error;
     }
   }
+
   async signIn(body: {
     email: string;
     password: string;
@@ -73,5 +76,8 @@ export class AuthService {
         expiresIn: '1h',
       }),
     };
+  }
+  async sendWelcomeEmail(user: Omit<User, 'password'>): Promise<void> {
+    await this.mailService.sendWelcomeEmail(user.email, user.name);
   }
 }

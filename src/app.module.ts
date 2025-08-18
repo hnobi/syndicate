@@ -10,6 +10,8 @@ import { AuthGuard } from './auth/auth.guard';
 import { CommunityModule } from './community/community.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { MailService } from './mail/mail.service';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { redisStore } from 'cache-manager-redis-yet';
     UserModule,
     AuthModule,
     CommunityModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [
@@ -38,6 +41,7 @@ import { redisStore } from 'cache-manager-redis-yet';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    MailService,
   ],
 })
 export class AppModule {}

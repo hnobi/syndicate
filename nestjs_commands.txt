@@ -1,0 +1,43 @@
+# NestJS Commands for Module, Service, and Controller
+
+1. Create a Module:
+   Command: nest g mo message
+   - This creates a module named `MessageModule`.
+   - The file `message.module.ts` will be generated.
+
+2. Create a Service:
+   Command: nest g pr message
+   - This creates a provider named `MessageService` in the `message` module.
+   - Files generated:
+     - `message.ts` (provider logic with a class `MessageService`)
+     - `message.spec.ts` (test file for the provider)
+     - Rename manually to be like below, ensure to Rename the classes also
+         - `message.service.ts` (provider logic)
+         - `message.service.spec.ts` (test file for the provider)
+
+3. Create a Controller:
+   Command: nest g co message/message
+   - This creates a controller named `MessageController` in the `message` module.
+   - Files generated:
+     - `message.controller.ts` (handles routes for the `message` module)
+     - `message.controller.spec.ts` (test file for the controller)
+
+4. Example Folder Structure:
+   src/
+   ├── message/
+   │   ├── message.module.ts
+   │   ├── message.service.ts
+   │   ├── message.service.spec.ts
+   │   ├── message.controller.ts
+   │   ├── message.controller.spec.ts
+
+5. Summary of Commands:
+   - `nest g mo message` to create the module.
+   - `nest g pr message` to create the service.
+   - `nest g co message` to create the controller.
+
+With these commands, you can generate the necessary files for a modular and well-organized `message` feature in your NestJS application.
+
+6: Sample Command for migration
+   - npx nestjs-command migrate:add-readAt-field
+
