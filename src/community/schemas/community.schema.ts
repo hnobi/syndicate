@@ -13,10 +13,10 @@ export class Community extends Document {
   @Prop()
   description: string;
 
-  @Prop()
+  @Prop({ type: String, default: '' })
   avatar: string;
 
-  @Prop()
+  @Prop({ type: String, default: '' })
   coverImage: string;
 
   @Prop({ enum: Visibility, default: Visibility.PUBLIC })

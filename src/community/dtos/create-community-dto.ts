@@ -6,7 +6,7 @@ export class CreateCommunityDto {
   name: string;
 
   @IsString()
-  description?: string;
+  description: string;
 
   @IsString()
   @IsOptional()
