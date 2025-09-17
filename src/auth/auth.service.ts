@@ -77,7 +77,4 @@ export class AuthService {
       }),
     };
   }
-  async sendWelcomeEmail(user: Omit<User, 'password'>): Promise<void> {
-    await this.mailService.sendWelcomeEmail(user.email, user.name);
-  }
 }

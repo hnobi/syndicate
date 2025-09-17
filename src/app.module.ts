@@ -12,6 +12,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
+import { BullModule } from '@nestjs/bullmq';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -29,10 +31,18 @@ import { MailModule } from './mail/mail.module';
       ttl: 60 * 60, // 1 hour
       store: redisStore,
     }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      },
+      defaultJobOptions: { attempts: 3 },
+    }),
     UserModule,
     AuthModule,
     CommunityModule,
     MailModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [

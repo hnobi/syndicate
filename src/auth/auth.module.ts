@@ -6,9 +6,16 @@ import { AuthService } from './auth.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthGuard } from './auth.guard';
 import { MailModule } from 'src/mail/mail.module';
+import { QueueModule } from 'src/queue/queue.module';
 
 @Module({
-  imports: [UserModule, JwtModule.register({}), ConfigModule, MailModule],
+  imports: [
+    UserModule,
+    JwtModule.register({}),
+    ConfigModule,
+    MailModule,
+    QueueModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService, AuthGuard],
   exports: [AuthService, AuthGuard, JwtModule],
