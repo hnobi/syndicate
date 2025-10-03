@@ -16,9 +16,13 @@ terraform {
 }
 
 
-
 module "tf-state" {
   source      = "./modules/tf-state"
   bucket_name = local.bucket_name
   table_name  = local.table_name
+}
+
+module "ecr-repository" {
+  source = "./modules/ecr"
+  aws_ecr_repo_name = local.ecr_repo_name
 }
