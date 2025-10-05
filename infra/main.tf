@@ -42,7 +42,7 @@ module "secrets" {
 module "ecsCluster" {
   source                         = "./modules/ecs"
 
-  ecr_repo_url                   = module.ecr-repository.repository_url #from ecr module output
+  ecr_repo_url                   = "${module.ecr-repository.repository_url}:${var.image_tag}" #from ecr module output
   syndicate_cluster_name         = local.syndicate_cluster_name
   syndicate_task_family          = local.syndicate_task_family
   syndicate_task_name            = local.syndicate_task_name

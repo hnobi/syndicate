@@ -22,6 +22,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/syndicate"
+  retention_in_days = 14
+}
 resource "aws_ecs_task_definition" "syndicate_task" {
   family                   = var.syndicate_task_family
   network_mode             = "awsvpc"
@@ -29,6 +33,11 @@ resource "aws_ecs_task_definition" "syndicate_task" {
   cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"  # or "X86_64" for AMD64
+  }
 
  container_definitions = jsonencode([
   {
@@ -50,8 +59,20 @@ resource "aws_ecs_task_definition" "syndicate_task" {
       {
         name  = "REDIS_PORT"
         value = tostring(var.redis_port)
-      }
+      },
+      {
+        name  = "NODE_ENV"
+        value = var.NODE_ENV
+  },
     ]
+     logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = "/ecs/syndicate"
+        awslogs-stream-prefix = "ecs"
+          "awslogs-region"        = "eu-west-2" 
+      }
+    }
   }
 ])
 

@@ -20,6 +20,10 @@ variable "syndicate_task_name" {
 variable "container_port" {
   type = number
 }
+variable "NODE_ENV" {
+  type    = string
+  default = "production"
+}
 
 variable "ecs_task_execution_role_name" {
   type = string
