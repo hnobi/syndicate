@@ -60,12 +60,14 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 *.tfstate.backup
 .terraform/
 .terraform.lock.hcl
+terraform.tfvars
 crash.log
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
 .terragrunt-cache/
+
 # Local .terraform directories
 **/.terraform/*
 # .tfvars files, which are likely to contain sensitive data
