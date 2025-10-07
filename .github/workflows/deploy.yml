@@ -33,10 +33,10 @@ jobs:
         id: build
         env:
           IMAGE_TAG: ${{ github.sha }}
-        run: |
-          echo "Building Docker image from Dockerfile..."
-          docker build --target production -t ${{ env. }}:$IMAGE_TAG .
-          echo "✅ Build complete: ${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
+          run:  |
+            echo "Building Docker image from Dockerfile..."
+            docker build --target production -t ${{ env. }}:$IMAGE_TAG .
+            echo "✅ Build complete: ${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
     
       - name: Tag image for ECR
         env:
