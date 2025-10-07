@@ -1,5 +1,4 @@
 name: Deploy Syndicate
-
 on:
   push:
     branches:
@@ -9,6 +8,7 @@ env:
   ECS_CLUSTER: syndicate-cluster
   ECS_SERVICE: syndicate_service
   CONTAINER_NAME: syndicate_task
+  TASK_FAMILY: syndicate_task-family
 
 jobs:
   deploy:
@@ -31,7 +31,9 @@ jobs:
 
       - name: Build, tag, and push image
         id: build
-        run:  |
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
           IMAGE_TAG=${GITHUB_SHA:0:7}
           echo "Building Docker image from Dockerfile..."
           docker build --target production -t ${{ env.ECR_REPOSITORY }}:$IMAGE_TAG .
@@ -39,29 +41,32 @@ jobs:
     
       - name: Tag image for ECR
         env:
-          ECR_REGISTRY_URL: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           IMAGE_TAG=${GITHUB_SHA:0:7}
           echo "Tagging image for ECR..."
           docker tag ${{ env.ECR_REPOSITORY }}:$IMAGE_TAG \
-            $ECR_REGISTRY_URL/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
-          echo "✅ Tagged: $ECR_REGISTRY_URL/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
+            $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+          echo "✅ Tagged: $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
 
       - name: Push image to Amazon ECR
         id: push-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           IMAGE_TAG=${GITHUB_SHA:0:7}
           echo "Pushing image to ECR..."
           docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+          echo "✅ Push complete"
+          
+          # Output the full image URL
+          echo "image=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # Download current task definition
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-            --task-definition syndicate_task-family \
+            --task-definition ${{ env.TASK_FAMILY }} \
             --query taskDefinition > task-definition.json
       
       # Update image in task definition
@@ -73,7 +78,7 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.push-image.outputs.image }}
 
-     # Deploy to ECS
+      # Deploy to ECS
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
@@ -91,4 +96,3 @@ jobs:
           echo "Commit: ${{ github.sha }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "════════════════════════════════════════"
-    
