@@ -8,7 +8,7 @@ env:
   ECR_REPOSITORY: syndicate-repository
   ECS_CLUSTER: syndicate-cluster
   ECS_SERVICE: syndicate_service
-  CONTAINER_NAME: syndicate
+  CONTAINER_NAME: syndicate_task
 
 jobs:
   deploy:
@@ -56,11 +56,39 @@ jobs:
           IMAGE_TAG=${GITHUB_SHA:0:7}
           echo "Pushing image to ECR..."
           docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
-      
-      
-    
-        
 
+      # Download current task definition
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition syndicate_task \
+            --query taskDefinition > task-definition.json
       
+      # Update image in task definition
+      - name: Update task definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v2
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.push-image.outputs.image }}
+
+     # Deploy to ECS
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
       
+      - name: Deployment summary
+        run: |
+          echo "════════════════════════════════════════"
+          echo "✅ DEPLOYMENT SUCCESSFUL"
+          echo "════════════════════════════════════════"
+          echo "Image: ${{ steps.push-image.outputs.image }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "════════════════════════════════════════"
     
