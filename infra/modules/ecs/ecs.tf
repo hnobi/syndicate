@@ -36,7 +36,7 @@ resource "aws_ecs_task_definition" "syndicate_task" {
 
 runtime_platform {
     operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"  # or "X86_64" for AMD64
+    cpu_architecture        = "X86_64"  # or "X86_64" for AMD64
   }
 
  container_definitions = jsonencode([
