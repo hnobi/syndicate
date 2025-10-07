@@ -1,5 +1,6 @@
 # 👋 Welcome to Syndicate
 
+https://github.com/hnobi
 > Building scalable, cloud-native applications with modern infrastructure
 
 ## 🚀 About
@@ -30,6 +31,3 @@ Fully automated cloud deployment using:
 - Application Load Balancer for traffic distribution
 - Infrastructure as Code with Terraform
 
-## 📫 Get in Touch
-
-[Your contact info or contribution guidelines]

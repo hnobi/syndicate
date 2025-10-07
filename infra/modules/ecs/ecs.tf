@@ -264,3 +264,66 @@ resource "aws_elasticache_cluster" "redis" {
   subnet_group_name    = aws_elasticache_subnet_group.redis.name
   security_group_ids   = [aws_security_group.redis_security_group.id]
 }
+
+
+
+# GitHub Actions IAM Role and Policy for ECR and ECS Deployment
+# IAM Policy for GitHub Actions ECS Deployment
+resource "aws_iam_policy" "github_actions_ecs_deployment" {
+  name        = "GitHubActionsECSDeployment"
+  description = "Allows GitHub Actions to deploy to ECS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ECSDeploymentPermissions"
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+          "ecs:UpdateService",
+          "ecs:DescribeServices",
+          "ecs:ListTasks",
+          "ecs:DescribeTasks"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "IAMPassRole"
+        Effect = "Allow"
+        Action = "iam:PassRole"
+        Resource = [
+          aws_iam_role.ecs_task_execution_role.arn
+        ]
+        Condition = {
+          StringLike = {
+            "iam:PassedToService" = "ecs-tasks.amazonaws.com"
+          }
+        }
+      },
+      {
+        Sid    = "ECRPermissions"
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+resource "aws_iam_user_policy_attachment" "tf_dev_ecs_deployment" {
+  user       = "tf-dev"
+  policy_arn = aws_iam_policy.github_actions_ecs_deployment.arn
+}
+
+
+
