@@ -6,7 +6,7 @@ on:
 env:
   ECR_REPOSITORY: syndicate-repository
   ECS_CLUSTER: syndicate-cluster
-  ECS_SERVICE: syndicate_service
+  ECS_SERVICE: syndicate-service
   CONTAINER_NAME: syndicate_task
   TASK_FAMILY: syndicate_task-family
 
