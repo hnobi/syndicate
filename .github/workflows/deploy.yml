@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+env:
+  ECR_REPOSITORY: syndicate-repository
+  ECS_CLUSTER: syndicate-cluster
+  ECS_SERVICE: syndicate_service
+  CONTAINER_NAME: syndicate
 
 jobs:
   deploy:
@@ -21,11 +26,29 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
                   
       - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # - name
+      - name: Build, tag, and push image
+        id: build
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Building Docker image from Dockerfile..."
+          docker build --target production -t ${{ env. }}:$IMAGE_TAG .
+          echo "✅ Build complete: ${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
+    
+      - name: Tag image for ECR
+        env:
+          ECR_REGISTRY_URL: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Tagging image for ECR..."
+          docker tag ${{ env.ECR_REPOSITORY }}:$IMAGE_TAG \
+            $ECR_REGISTRY_URL/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+          echo "✅ Tagged: $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
       
-      
+    
         
 
       
