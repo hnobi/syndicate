@@ -5,6 +5,10 @@ resource "aws_s3_bucket" "syndicate-terraform-state" {
     Name        = "syndicate-terraform-state"
     Environment = "Dev"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket_versioning" "versioning" {
@@ -23,7 +27,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state_e
   }
 
 }
-
+ 
 # DynamoDB table for Terraform state locking
 resource "aws_dynamodb_table" "syndicate-terraform-lock" {
   name         = var.table_name
