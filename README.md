@@ -176,9 +176,15 @@ See controller files in `src/` for details.
 
 ---
 
+## Roadmap
+
+Planned work is tracked in [ROADMAP.md](ROADMAP.md).
+
+---
+
 ## License
 
-UNLICENSED
+Released under the [MIT License](LICENSE).
 
 ---
 
